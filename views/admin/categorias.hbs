@@ -1,0 +1,24 @@
+<h2>Lista de categorias</h2>
+<hr />
+<a href='/admin/categorias/add'>
+  <div class='btn btn-success'>Nova categoria</div>
+</a>
+
+{{#each categorias}}
+  <div class='card my-4'>
+    <div class='card-body'>
+      <h4 class='card-title'>{{nome}}</h4>
+      <p class='card-text'>Slug: {{slug}}</p>
+      <p class='card-text'>{{data}}</p>
+      <a href='/admin/categorias/edit/{{_id}}'><button class='btn btn-success'>Editar Categoria</button></a>
+      <form action='/admin/categorias/deletar' method='post'>
+        <input type='hidden' name='id' value='{{_id}}' />
+        <button type='submit' class='btn btn-danger mt-2'>Excluir categoria</button>
+      </form>
+    </div>
+  </div>
+{{else}}
+  <div class='alert alert-primary mt-4'>
+    Não há categorias cadastradas.
+  </div>
+{{/each}}

@@ -24,6 +24,7 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bootstrap": "^5.3.6",
     "connect-flash": "^0.1.1",
     "express": "^5.1.0",

@@ -27,6 +27,8 @@ const PostagemSchema = new mongoose.Schema({
     default: Date.now
   }
 });
-
-const Postagem = mongoose.model('postagem', PostagemSchema);
+// Está escrito postagen, porque o próprio mongoose vai pluralizar o nome do modelo para criar a coleção no MongoDB, que será "postagens"
+// Se fosse 'postagem', a coleção seria 'postagems', o que não é correto. Por isso, usamos 'postagen' para que a coleção seja 'postagens'.
+// O mongoose pluraliza automaticamente o nome do modelo para criar a coleção, então 'postagen' se torna 'postagens'.
+const Postagem = mongoose.model('postagen', PostagemSchema);
 export default Postagem;

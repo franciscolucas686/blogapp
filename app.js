@@ -8,11 +8,14 @@ import { fileURLToPath } from 'url';
 import Postagem from './models/Postagem.js';
 import admin from './routes/admin.js';
 import usuario from './routes/usuario.js';
+import passport from 'passport';
+import configPassport from './config/auth.js';
+
 
 const app = express();
 
 // Configurações
-// Sessão e Flash
+// Sessão
 app.use(
   session({
     secret: 'cursodenode',
@@ -20,11 +23,17 @@ app.use(
     saveUninitialized: true
   })
 );
+// Passport e Flash
+app.use(passport.initialize());
+app.use(passport.session());
+configPassport(passport);
 app.use(flash());
 // Middleware
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error');
+  res.locals.user = req.user || null;
   next();
 });
 // Variaveis de caminho no ES Modules

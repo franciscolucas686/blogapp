@@ -1,18 +1,11 @@
 import { Router } from 'express';
 import Categoria from '../models/Categoria.js';
 import Postagem from '../models/Postagem.js';
+import eAdmin from '../helpers/eAdmin.js';
 
 const router = Router();
 
-router.get('/', (req, res) => {
-  res.render('admin/home');
-});
-
-router.get('/posts', (req, res) => {
-  res.send('Página de posts');
-});
-
-router.get('/categorias', async (req, res) => {
+router.get('/categorias', eAdmin, async (req, res) => {
   try {
     const categorias = await Categoria.find().lean().sort({ data: 'desc' });
     res.render('admin/categorias', { categorias });
@@ -22,31 +15,32 @@ router.get('/categorias', async (req, res) => {
   }
 });
 
-router.get('/categorias/add', (req, res) => {
+router.get('/categorias/add', eAdmin, (req, res) => {
   res.render('admin/addcategorias');
 });
 
-router.post('/categorias/nova', async (req, res) => {
+router.post('/categorias/nova', eAdmin, async (req, res) => {
+  const { nome, slug } = req.body;
   const erros = [];
 
-  if (!req.body.nome || typeof req.body.nome === undefined || req.body.nome === null) {
+  if (!nome || typeof nome === undefined || nome === null) {
     erros.push({ texto: 'Nome inválido' });
   }
 
-  if (!req.body.slug || typeof req.body.slug === undefined || req.body.slug === null) {
+  if (!slug || typeof slug === undefined || slug === null) {
     erros.push({ texto: 'Slug inválido' });
   }
-  if (req.body.nome.length < 2) {
+  if (nome.length < 2) {
     erros.push({ texto: 'Nome muito pequeno' });
   }
-  if (req.body.slug.length < 2) {
+  if (slug.length < 2) {
     erros.push({ texto: 'Slug muito pequeno' });
   }
 
   if (erros.length > 0) {
     res.render('admin/addcategorias', { erros: erros });
   } else {
-    const novaCategoria = { nome, slug } = req.body;
+    const novaCategoria = { nome, slug };
     try {
       await new Categoria(novaCategoria).save();
       req.flash('success_msg', 'Categoria criada com sucesso!');
@@ -58,7 +52,7 @@ router.post('/categorias/nova', async (req, res) => {
   }
 });
 
-router.get('/categorias/edit/:id', async (req, res) => {
+router.get('/categorias/edit/:id', eAdmin, async (req, res) => {
   try {
     const categoria = await Categoria.findOne({ _id: req.params.id }).lean();
     res.render('admin/editcategorias', { categoria });
@@ -68,11 +62,12 @@ router.get('/categorias/edit/:id', async (req, res) => {
   }
 });
 
-router.post('/categorias/edit', async (req, res) => {
+router.post('/categorias/edit', eAdmin, async (req, res) => {
   try {
-    const categoria = await Categoria.findOne({ _id: req.body.id });
-    categoria.nome = req.body.nome;
-    categoria.slug = req.body.slug;
+    const { id, nome , slug } = req.body;
+    const categoria = await Categoria.findOne({ _id: id });
+    categoria.nome = nome;
+    categoria.slug = slug;
 
     await categoria.save();
     req.flash('success_msg', 'Categoria editada com sucesso!');
@@ -83,7 +78,7 @@ router.post('/categorias/edit', async (req, res) => {
   }
 });
 
-router.post('/categorias/deletar', async (req, res) => {
+router.post('/categorias/deletar', eAdmin, async (req, res) => {
   try {
     await Categoria.deleteOne({ _id: req.body.id });
     req.flash('success_msg', 'Categoria deletada com sucesso!');
@@ -94,7 +89,7 @@ router.post('/categorias/deletar', async (req, res) => {
   }
 });
 
-router.get('/postagens', async (req, res) => {
+router.get('/postagens', eAdmin, async (req, res) => {
   try {
     const postagens = await Postagem.find().populate('categoria').sort({ data: 'desc' }).lean();
     res.render('admin/postagens', { postagens });
@@ -104,7 +99,7 @@ router.get('/postagens', async (req, res) => {
   }
 });
 
-router.get('/postagens/add', async (req, res) => {
+router.get('/postagens/add', eAdmin, async (req, res) => {
   try {
     const categorias = await Categoria.find().lean();
     res.render('admin/addpostagem', { categorias });
@@ -114,7 +109,7 @@ router.get('/postagens/add', async (req, res) => {
   }
 });
 
-router.post('/postagens/nova', async (req, res) => {
+router.post('/postagens/nova', eAdmin, async (req, res) => {
   const { titulo, slug, descricao, conteudo, categoria } = req.body;
   const erros = [];
 
@@ -162,7 +157,7 @@ router.post('/postagens/nova', async (req, res) => {
     }
 });
   
-router.get('/postagens/edit/:id', async (req, res) => {
+router.get('/postagens/edit/:id', eAdmin, async (req, res) => {
   try {
     const postagem = await Postagem.findOne({ _id: req.params.id }).lean();
     if(!postagem) {
@@ -177,18 +172,19 @@ router.get('/postagens/edit/:id', async (req, res) => {
   }
 });
 
-router.post('/postagens/edit', async (req, res) => {
+router.post('/postagens/edit', eAdmin, async (req, res) => {
+  const { id, titulo, slug, descricao, conteudo, categoria } = req.body;
   try {
-    const postagem = await Postagem.findOne({ _id: req.body.id });
+    const postagem = await Postagem.findOne({ _id: id });
     if(!postagem) {
       req.flash('error_msg', 'Postagem não encontrada');
       return res.redirect('/admin/postagens');
     }
-    postagem.titulo = req.body.titulo;
-    postagem.slug = req.body.slug;
-    postagem.descricao = req.body.descricao;
-    postagem.conteudo = req.body.conteudo;
-    postagem.categoria = req.body.categoria;
+    postagem.titulo = titulo;
+    postagem.slug = slug;
+    postagem.descricao = descricao;
+    postagem.conteudo = conteudo;
+    postagem.categoria = categoria;
     await postagem.save();
     req.flash('success_msg', 'Postagem editada com sucesso!');
     res.redirect('/admin/postagens');
@@ -198,9 +194,10 @@ router.post('/postagens/edit', async (req, res) => {
   }
 });
 
-router.post('/postagens/deletar', async (req, res) => {
+router.post('/postagens/deletar', eAdmin, async (req, res) => {
+  const { id } = req.body;
   try {
-    await Postagem.deleteOne({ _id: req.body.id });
+    await Postagem.deleteOne({ _id: id });
     req.flash('success_msg', 'Postagem deletada com sucesso!');
     res.redirect('/admin/postagens');
   } catch (err) {

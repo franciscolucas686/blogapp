@@ -1,7 +1,7 @@
 import { Router } from 'express';
+import eAdmin from '../helpers/eAdmin.js';
 import Categoria from '../models/Categoria.js';
 import Postagem from '../models/Postagem.js';
-import eAdmin from '../helpers/eAdmin.js';
 
 const router = Router();
 
@@ -64,7 +64,7 @@ router.get('/categorias/edit/:id', eAdmin, async (req, res) => {
 
 router.post('/categorias/edit', eAdmin, async (req, res) => {
   try {
-    const { id, nome , slug } = req.body;
+    const { id, nome, slug } = req.body;
     const categoria = await Categoria.findOne({ _id: id });
     categoria.nome = nome;
     categoria.slug = slug;
@@ -96,6 +96,21 @@ router.get('/postagens', eAdmin, async (req, res) => {
   } catch (err) {
     req.flash('error_msg', 'Houve um erro ao listar as postagens');
     res.redirect('/admin');
+  }
+});
+
+router.get('/postagem/:slug', eAdmin, async (req, res) => {
+  try {
+    const postagem = await Postagem.findOne({ slug: req.params.slug }).populate('categoria').lean();
+    if (postagem) {
+      res.render('postagem/index', { postagem });
+    } else {
+      req.flash('error_msg', 'Esta postagem não existe');
+      res.redirect('/');
+    }
+  } catch (err) {
+    req.flash('error_msg', 'Houve um erro interno');
+    res.redirect('/');
   }
 });
 
@@ -139,28 +154,28 @@ router.post('/postagens/nova', eAdmin, async (req, res) => {
       categoria
     });
   }
-    try {
-      const novaPostagem = {
-        titulo,
-        slug,
-        descricao,
-        conteudo,
-        categoria
-      };
+  try {
+    const novaPostagem = {
+      titulo,
+      slug,
+      descricao,
+      conteudo,
+      categoria
+    };
 
-      await new Postagem(novaPostagem).save();
-      req.flash('success_msg', 'Postagem criada com sucesso!');
-      res.redirect('/admin/postagens');
-    } catch (err) {
-      req.flash('error_msg', 'Houve um erro ao salvar a postagem, tente novamente.');
-      res.redirect('/admin/postagens');
-    }
+    await new Postagem(novaPostagem).save();
+    req.flash('success_msg', 'Postagem criada com sucesso!');
+    res.redirect('/admin/postagens');
+  } catch (err) {
+    req.flash('error_msg', 'Houve um erro ao salvar a postagem, tente novamente.');
+    res.redirect('/admin/postagens');
+  }
 });
-  
+
 router.get('/postagens/edit/:id', eAdmin, async (req, res) => {
   try {
     const postagem = await Postagem.findOne({ _id: req.params.id }).lean();
-    if(!postagem) {
+    if (!postagem) {
       req.flash('Essa postagem não existe');
       return res.redirect('/admin/postagens');
     }
@@ -176,7 +191,7 @@ router.post('/postagens/edit', eAdmin, async (req, res) => {
   const { id, titulo, slug, descricao, conteudo, categoria } = req.body;
   try {
     const postagem = await Postagem.findOne({ _id: id });
-    if(!postagem) {
+    if (!postagem) {
       req.flash('error_msg', 'Postagem não encontrada');
       return res.redirect('/admin/postagens');
     }

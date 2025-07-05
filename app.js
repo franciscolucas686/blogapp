@@ -10,6 +10,8 @@ import admin from './routes/admin.js';
 import usuario from './routes/usuario.js';
 import passport from 'passport';
 import configPassport from './config/auth.js';
+import db from './config/db.js';
+import adminRoutes from './routes/admin.js';
 
 
 const app = express();
@@ -59,7 +61,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Mongoose com IIFE - Immediately Invoked Function Expression
 (async () => {
   try {
-    await mongoose.connect('mongodb://localhost/blogapp');
+    await mongoose.connect(db.mongoURI);
     console.log('Conectado ao mongo');
   } catch (error) {
     console.error('Erro ao se conectar:', error);
@@ -77,23 +79,12 @@ app.get('/', async (req, res) => {
   }
 });
 
+app.get('/postagem/:slug', (req, res) => {
+  res.redirect(`/admin/postagem/${req.params.slug}`);
+});
+
 app.get('/404', (req, res) => {
   res.send('Erro 404!');
-})
-
-app.get('/postagem/:slug', async (req, res) => { 
-  try {
-    const postagem = await Postagem.findOne({ slug: req.params.slug }).populate('categoria').lean();
-    if (postagem) {
-      res.render('postagem/index', { postagem });
-    } else {
-      req.flash('error_msg', 'Esta postagem não existe');
-      res.redirect('/');
-    }
-  } catch (err) {
-    req.flash('error_msg', 'Houve um erro interno');
-    res.redirect('/');
-  }
 })
 
 app.use('/admin', admin);

@@ -10,7 +10,7 @@
       <h4 class='card-title'>{{nome}}</h4>
       <p class='card-text'>Slug: {{slug}}</p>
       <p class='card-text'>{{data}}</p>
-      <a href='/admin/categorias/edit/{{_id}}'><button class='btn btn-success'>Editar Categoria</button></a>
+      <a href='/admin/categorias/edit/{{_id}}'><button class='btn btn-warning'>Editar Categoria</button></a>
       <form action='/admin/categorias/deletar' method='post'>
         <input type='hidden' name='id' value='{{_id}}' />
         <button type='submit' class='btn btn-danger mt-2'>Excluir categoria</button>

@@ -12,7 +12,7 @@ router.get('/registro', (req, res) => {
 router.post('/registro', async (req, res) => {
   const { nome, email, senha, senha2 } = req.body;
   const erros = [];
-  
+
   if (!nome || typeof nome === undefined || nome === null) {
     erros.push({ texto: 'Nome inválido' });
   }
@@ -58,7 +58,7 @@ router.get('/login', (req, res) => {
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', {
-    successRedirect: '/admin/postagens',
+    successRedirect: '/',
     failureRedirect: '/usuarios/login',
     failureFlash: true
   })(req, res, next);

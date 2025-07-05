@@ -11,7 +11,7 @@ import usuario from './routes/usuario.js';
 import passport from 'passport';
 import configPassport from './config/auth.js';
 import db from './config/db.js';
-import adminRoutes from './routes/admin.js';
+import MongoStore from 'connect-mongo';
 
 
 const app = express();
@@ -20,9 +20,16 @@ const app = express();
 // Sessão
 app.use(
   session({
-    secret: 'cursodenode',
-    resave: true,
-    saveUninitialized: true
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: db.mongoURI,
+      collectionName: 'sessions',
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 2 // 2 horas
+    }
   })
 );
 // Passport e Flash

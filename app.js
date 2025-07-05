@@ -12,7 +12,9 @@ import passport from 'passport';
 import configPassport from './config/auth.js';
 import db from './config/db.js';
 import MongoStore from 'connect-mongo';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
 const app = express();
 

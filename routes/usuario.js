@@ -1,7 +1,7 @@
-import { Router } from 'express';
-import Usuario from '../models/Usuario.js';
 import bcrypt from 'bcrypt';
+import { Router } from 'express';
 import passport from 'passport';
+import Usuario from '../models/Usuario.js';
 
 const router = Router();
 
@@ -65,7 +65,7 @@ router.post('/login', (req, res, next) => {
 });
 
 router.get('/logout', (req, res) => {
-  req.logout((err) => {
+  req.logout(err => {
     if (err) {
       console.error(err);
       return res.redirect('/');
